@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Тренажёр: Цикл for в Python</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    min-height: 100vh;
+    color: #eee;
+    padding: 20px;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #1e1e2e;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  h1 {
+    text-align: center;
+    color: #ffd866;
+    margin-bottom: 20px;
+    font-size: 2em;
+  }
+  h2 { color: #8be9fd; margin: 20px 0 10px; }
+  h3 { color: #50fa7b; margin: 15px 0 8px; }
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tab {
+    flex: 1;
+    padding: 12px;
+    background: #2d2d44;
+    border: none;
+    color: #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: 0.3s;
+  }
+  .tab.active { background: #ff79c6; color: #fff; }
+  .tab:hover { background: #44475a; }
+  .tab.active:hover { background: #ff79c6; }
+  .section { display: none; }
+  .section.active { display: block; }
+  pre {
+    background: #282a36;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+    border-left: 4px solid #50fa7b;
+    margin: 10px 0;
+  }
+  code { font-family: 'Consolas', monospace; color: #f8f8f2; }
+  .kw { color: #ff79c6; }
+  .str { color: #f1fa8c; }
+  .fn { color: #8be9fd; }
+  .num { color: #bd93f9; }
+  .var { color: #ffb86c; }
+  .com { color: #6272a4; font-style: italic; }
+  .task {
+    background: #2d2d44;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 15px 0;
+    border-left: 4px solid #ffd866;
+  }
+  .task p { margin-bottom: 10px; }
+  textarea {
+    width: 100%;
+    min-height: 100px;
+    background: #282a36;
+    color: #f8f8f2;
+    border: 2px solid #44475a;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Consolas', monospace;
+    font-size: 1em;
+    resize: vertical;
+  }
+  textarea:focus { outline: none; border-color: #8be9fd; }
+  .buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  button.action {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: 0.2s;
+  }
+  .btn-check { background: #50fa7b; color: #282a36; }
+  .btn-hint { background: #ffb86c; color: #282a36; }
+  .btn-skip { background: #6272a4; color: #fff; }
+  button.action:hover { transform: translateY(-2px); opacity: 0.9; }
+  .result {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    display: none;
+  }
+  .result.show { display: block; }
+  .result.ok { background: #50fa7b33; color: #50fa7b; border: 1px solid #50fa7b; }
+  .result.err { background: #ff555533; color: #ff5555; border: 1px solid #ff5555; }
+  .hint {
+    margin-top: 10px;
+    padding: 12px;
+    background: #ffb86c22;
+    border-left: 4px solid #ffb86c;
+    border-radius: 6px;
+    display: none;
+  }
+  .hint.show { display: block; }
+  .progress {
+    background: #44475a;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 10px 0 20px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #50fa7b, #8be9fd);
+    width: 0%;
+    transition: width 0.4s;
+  }
+  .score {
+    text-align: center;
+    font-size: 1.2em;
+    color: #ffd866;
+    margin-bottom: 10px;
+  }
+  .expected {
+    background: #282a36;
+    padding: 10px;
+    border-radius: 6px;
+    margin: 8px 0;
+    border-left: 3px solid #bd93f9;
+  }
+  .expected::before {
+    content: "Ожидаемый вывод:";
+    display: block;
+    color: #bd93f9;
+    font-size: 0.85em;
+    margin-bottom: 4px;
+  }
+  .note {
+    background: #44475a33;
+    border-left: 4px solid #8be9fd;
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 6px;
+  }
+  .important {
+    background: #ff79c633;
+    border-left: 4px solid #ff79c6;
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 6px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🔄 Тренажёр: Цикл for в Python</h1>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="theory">📖 Теория</button>
+    <button class="tab" data-tab="level1">🟢 Уровень 1</button>
+    <button class="tab" data-tab="level2">🟡 Уровень 2</button>
+    <button class="tab" data-tab="level3">🔴 Уровень 3</button>
+  </div>
+
+  <!-- ТЕОРИЯ -->
+  <div class="section active" id="theory">
+    <div class="important">
+      <b>💡 Главная идея:</b> Цикл <code class="kw">for</code> в Python перебирает элементы <b>последовательности</b>.
+      Это может быть строка, список, диапазон range, словарь — неважно! Цикл просто берёт каждый элемент по очереди.
+    </div>
+
+    <h2>Цикл for с range()</h2>
+    <p>Функция <code class="fn">range()</code> создаёт последовательность чисел.</p>
+
+    <h3>range(стоп) — от 0 до стоп-1</h3>
+    <pre><code><span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)
+<span class="com"># Вывод: 0 1 2 3 4</span></code></pre>
+
+    <h3>range(старт, стоп) — от старт до стоп-1</h3>
+    <pre><code><span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">2</span>, <span class="num">6</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)
+<span class="com"># Вывод: 2 3 4 5</span></code></pre>
+
+    <h3>range(старт, стоп, шаг) — с шагом</h3>
+    <pre><code><span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="num">10</span>, <span class="num">2</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)
+<span class="com"># Вывод: 0 2 4 6 8</span>
+
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>, <span class="num">0</span>, -<span class="num">2</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)
+<span class="com"># Вывод: 10 8 6 4 2 (обратный порядок)</span></code></pre>
+
+    <h2>Цикл for со строками</h2>
+    <p>Строка — это последовательность символов. Цикл перебирает каждый символ.</p>
+    <pre><code><span class="var">text</span> = <span class="str">"Python"</span>
+<span class="kw">for</span> <span class="var">char</span> <span class="kw">in</span> <span class="var">text</span>:
+    <span class="fn">print</span>(<span class="var">char</span>)
+<span class="com"># Вывод: P y t h o n (каждый на новой строке)</span></code></pre>
+
+    <h3>Перебор с индексом</h3>
+    <pre><code><span class="var">text</span> = <span class="str">"Hello"</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(<span class="var">text</span>)):
+    <span class="fn">print</span>(<span class="var">i</span>, <span class="var">text</span>[<span class="var">i</span>])
+<span class="com"># Вывод: 0 H / 1 e / 2 l / 3 l / 4 o</span></code></pre>
+
+    <h2>Цикл for со списками</h2>
+    <p>Список — последовательность элементов. Цикл перебирает каждый элемент.</p>
+    <pre><code><span class="var">fruits</span> = [<span class="str">"яблоко"</span>, <span class="str">"банан"</span>, <span class="str">"вишня"</span>]
+<span class="kw">for</span> <span class="var">fruit</span> <span class="kw">in</span> <span class="var">fruits</span>:
+    <span class="fn">print</span>(<span class="var">fruit</span>)
+<span class="com"># Вывод: яблоко / банан / вишня</span></code></pre>
+
+    <h3>Перебор с индексом</h3>
+    <pre><code><span class="var">numbers</span> = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>]
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(<span class="var">numbers</span>)):
+    <span class="fn">print</span>(<span class="var">i</span>, <span class="var">numbers</span>[<span class="var">i</span>])
+<span class="com"># Вывод: 0 10 / 1 20 / 2 30</span></code></pre>
+
+    <h3>Функция enumerate() — индексы + значения</h3>
+    <pre><code><span class="var">colors</span> = [<span class="str">"красный"</span>, <span class="str">"зелёный"</span>, <span class="str">"синий"</span>]
+<span class="kw">for</span> <span class="var">i</span>, <span class="var">color</span> <span class="kw">in</span> <span class="fn">enumerate</span>(<span class="var">colors</span>):
+    <span class="fn">print</span>(<span class="var">i</span>, <span class="var">color</span>)
+<span class="com"># Вывод: 0 красный / 1 зелёный / 2 синий</span></code></pre>
+
+    <h2>Цикл for со словарями</h2>
+    <p>Словарь — последовательность пар ключ-значение. По умолчанию перебираются <b>ключи</b>.</p>
+
+    <h3>Перебор ключей (по умолчанию)</h3>
+    <pre><code><span class="var">person</span> = {<span class="str">"имя"</span>: <span class="str">"Анна"</span>, <span class="str">"возраст"</span>: <span class="num">25</span>, <span class="str">"город"</span>: <span class="str">"Москва"</span>}
+<span class="kw">for</span> <span class="var">key</span> <span class="kw">in</span> <span class="var">person</span>:
+    <span class="fn">print</span>(<span class="var">key</span>)
+<span class="com"># Вывод: имя / возраст / город</span></code></pre>
+
+    <h3>Перебор значений</h3>
+    <pre><code><span class="kw">for</span> <span class="var">value</span> <span class="kw">in</span> <span class="var">person</span>.<span class="fn">values</span>():
+    <span class="fn">print</span>(<span class="var">value</span>)
+<span class="com"># Вывод: Анна / 25 / Москва</span></code></pre>
+
+    <h3>Перебор пар ключ-значение</h3>
+    <pre><code><span class="kw">for</span> <span class="var">key</span>, <span class="var">value</span> <span class="kw">in</span> <span class="var">person</span>.<span class="fn">items</span>():
+    <span class="fn">print</span>(<span class="var">key</span>, <span class="str">":"</span>, <span class="var">value</span>)
+<span class="com"># Вывод: имя : Анна / возраст : 25 / город : Москва</span></code></pre>
+
+    <h2>Другие полезные конструкции</h2>
+
+    <h3>Функция zip() — параллельный перебор</h3>
+    <pre><code><span class="var">names</span> = [<span class="str">"Аня"</span>, <span class="str">"Боря"</span>, <span class="str">"Вика"</span>]
+<span class="var">ages</span> = [<span class="num">20</span>, <span class="num">25</span>, <span class="num">30</span>]
+<span class="kw">for</span> <span class="var">name</span>, <span class="var">age</span> <span class="kw">in</span> <span class="fn">zip</span>(<span class="var">names</span>, <span class="var">ages</span>):
+    <span class="fn">print</span>(<span class="var">name</span>, <span class="str">"—"</span>, <span class="var">age</span>)
+<span class="com"># Вывод: Аня — 20 / Боря — 25 / Вика — 30</span></code></pre>
+
+    <h3>Вложенные циклы</h3>
+    <pre><code><span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
+    <span class="kw">for</span> <span class="var">j</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">2</span>):
+        <span class="fn">print</span>(<span class="var">i</span>, <span class="var">j</span>)
+<span class="com"># Вывод: 0 0 / 0 1 / 1 0 / 1 1 / 2 0 / 2 1</span></code></pre>
+
+    <h3>Накопление суммы</h3>
+    <pre><code><span class="var">total</span> = <span class="num">0</span>
+<span class="kw">for</span> <span class="var">num</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>):
+    <span class="var">total</span> += <span class="var">num</span>
+<span class="fn">print</span>(<span class="var">total</span>)
+<span class="com"># Вывод: 15 (1+2+3+4+5)</span></code></pre>
+  </div>
+
+  <!-- УРОВЕНЬ 1 -->
+  <div class="section" id="level1">
+    <h2>🟢 Уровень 1 — Простые задания (range и строки)</h2>
+    <div class="score">Решено: <span id="score1">0</span> / <span id="total1">0</span></div>
+    <div class="progress"><div class="progress-bar" id="bar1"></div></div>
+    <div id="tasks1"></div>
+  </div>
+
+  <!-- УРОВЕНЬ 2 -->
+  <div class="section" id="level2">
+    <h2>🟡 Уровень 2 — Средняя сложность (range и строки)</h2>
+    <div class="score">Решено: <span id="score2">0</span> / <span id="total2">0</span></div>
+    <div class="progress"><div class="progress-bar" id="bar2"></div></div>
+    <div id="tasks2"></div>
+  </div>
+
+  <!-- УРОВЕНЬ 3 -->
+  <div class="section" id="level3">
+    <h2>🔴 Уровень 3 — Сложные задания (списки и словари)</h2>
+    <div class="score">Решено: <span id="score3">0</span> / <span id="total3">0</span></div>
+    <div class="progress"><div class="progress-bar" id="bar3"></div></div>
+    <div id="tasks3"></div>
+  </div>
+</div>
+
+<script>
+// Переключение вкладок
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Задания уровня 1
+const tasks1 = [
+  {
+    title: "Задание 1",
+    desc: "Выведите числа от 0 до 4 с помощью цикла <code>for</code> и <code>range()</code>.",
+    expected: "0\n1\n2\n3\n4",
+    hint: "for i in range(5):\n    print(i)",
+    check: code => /for\s+\w+\s+in\s+range\s*\(\s*5\s*\)\s*:\s*\n\s*print\s*\(\s*\w+\s*\)/.test(code)
+  },
+  {
+    title: "Задание 2",
+    desc: "Выведите числа от 3 до 7 (включительно) с помощью <code>range()</code>.",
+    expected: "3\n4\n5\n6\n7",
+    hint: "for i in range(3, 8):\n    print(i)",
+    check: code => /for\s+\w+\s+in\s+range\s*\(\s*3\s*,\s*8\s*\)\s*:\s*\n\s*print\s*\(\s*\w+\s*\)/.test(code)
+  },
+  {
+    title: "Задание 3",
+    desc: "Выведите чётные числа от 0 до 10 с помощью <code>range()</code> с шагом.",
+    expected: "0\n2\n4\n6\n8\n10",
+    hint: "for i in range(0, 11, 2):\n    print(i)",
+    check: code => /for\s+\w+\s+in\s+range\s*\(\s*0\s*,\s*11\s*,\s*2\s*\)\s*:\s*\n\s*print\s*\(\s*\w+\s*\)/.test(code)
+  },
+  {
+    title: "Задание 4",
+    desc: "Выведите каждый символ строки <b>\"Hello\"</b> на новой строке с помощью цикла <code>for</code>.",
+    expected: "H\ne\nl\nl\no",
+    hint: "for char in \"Hello\":\n    print(char)",
+    check: code => /for\s+\w+\s+in\s+["']Hello["']\s*:\s*\n\s*print\s*\(\s*\w+\s*\)/.test(code)
+  },
+  {
+    title: "Задание 5",
+    desc: "Выведите числа от 10 до 1 (обратный порядок) с помощью <code>range()</code> с отрицательным шагом.",
+    expected: "10\n9\n8\n7\n6\n5\n4\n3\n2\n1",
+    hint: "for i in range(10, 0, -1):\n    print(i)",
+    check: code => /for\s+\w+\s+in\s+range\s*\(\s*10\s*,\s*0\s*,\s*-\s*1\s*\)\s*:\s*\n\s*print\s*\(\s*\w+\s*\)/.test(code)
+  },
+  {
+    title: "Задание 6",
+    desc: "Выведите индексы и символы строки <b>\"Python\"</b> в формате: <b>0 P</b>, <b>1 y</b> и т.д.",
+    expected: "0 P\n1 y\n2 t\n3 h\n4 o\n5 n",
+    hint: "for i in range(len(\"Python\")):\n    print(i, \"Python\"[i])",
+    check: code => /for\s+\w+\s+in\s+range\s*\(\s*len\s*\(\s*["']Python["']\s*\)\s*\)\s*:\s*\n\s*print\s*\(\s*\w+\s*,\s*["']Python["']\s*\[\s*\w+\s*\]\s*\)/.test(code)
+  }
+];
+
+// Задания уровня 2
+const tasks2 = [
+  {
+    title: "Задание 1",
+    desc: "Выведите сумму чисел от 1 до 10 с помощью цикла <code>for</code> и накопления.",
+    expected: "55",
+    hint: "total = 0\nfor i in range(1, 11):\n    total += i\nprint(total)",
+    check: code => /total\s*=\s*0\s*\n\s*for\s+\w+\s+in\s+range\s*\(\s*1\s*,\s*11\s*\)\s*:\s*\n\s*total\s*\+=\s*\w+\s*\n\s*print\s*\(\s*total\s*\)/.test(code)
+  },
+  {
+    title: "Задание 2",
+    desc: "Выведите все символы строки <b>\"Hello\"</b> в обратном порядке (используйте <code>range()</code> с отрицательным шагом).",
+    expected: "o\nl\nl\ne\nH",
+    hint: "for i in range(len(\"Hello\")-1, -1, -1):\n    print(\"Hello\"[i])",
+    check: code => /for\s+\w+\s+in\s+range\s*\(\s*len\s*\(\s*["']Hello["']\s*\)\s*-\s*1\s*,\s*-\s*1\s*,\s*-\s*1\s*\)\s*:\s*\n\s*print\s*\(\s*["']Hello["']\s*\[\s*\w+\s*\]\s*\)/.test(code)
+  },
+  {
+    title: "Задание 3",
+    desc: "Выведите таблицу умножения на 5: <b>5 x 1 = 5</b>, <b>5 x 2 = 10</b>, ..., <b>5 x 10 = 50</b>.",
+    expected: "5 x 1 = 5\n5 x 2 = 10\n...\n5 x 10 = 50",
+    hint: "for i in range(1, 11):\n    print(f\"5 x {i} = {5 * i}\")",
+    check: code => /for\s+\w+\s+in\s+range\s*\(\s*1\s*,\s*11\s*\)\s*:\s*\n\s*print\s*\(\s*f["']5 x \{\w+\} = \{5\s*\*\s*\w+\}["']\s*\)/.test(code)
+  },
+  {
+    title: "Задание 4",
+    desc: "Выведите только гласные буквы из строки <b>\"Python\"</b> (гласные: a, e, i, o, u, y).",
+    expected: "o",
+    hint: "for char in \"Python\":\n    if char.lower() in \"aeiouy\":\n        print(char)",
+    check: code => /for\s+\w+\s+in\s+["']Python["']\s*:\s*\n\s*if\s+\w+\.?lower\(\)\s+in\s+["']aeiouy["']\s*:\s*\n\s*print\s*\(\s*\w+\s*\)/.test(code)
+  },
+  {
+    title: "Задание 5",
+    desc: "Выведите квадраты чисел от 1 до 5 в формате: <b>1^2 = 1</b>, <b>2^2 = 4</b> и т.д.",
+    expected: "1^2 = 1\n2^2 = 4\n3^2 = 9\n4^2 = 16\n5^2 = 25",
+    hint: "for i in range(1, 6):\n    print(f\"{i}^2 = {i**2}\")",
+    check: code => /for\s+\w+\s+in\s+range\s*\(\s*1\s*,\s*6\s*\)\s*:\s*\n\s*print\s*\(\s*f["']\{\w+\}\^2 = \{\w+\s*\*\*\s*2\}["']\s*\)/.test(code)
+  },
+  {
+    title: "Задание 6",
+    desc: "Выведите вложенный цикл: для каждого числа от 1 до 3 выведите числа от 1 до 2. Формат: <b>1 1</b>, <b>1 2</b>, <b>2 1</b> и т.д.",
+    expected: "1 1\n1 2\n2 1\n2 2\n3 1\n3 2",
+    hint: "for i in range(1, 4):\n    for j in range(1, 3):\n        print(i, j)",
+    check: code => /for\s+\w+\s+in\s+range\s*\(\s*1\s*,\s*4\s*\)\s*:\s*\n\s*for\s+\w+\s+in\s+range\s*\(\s*1\s*,\s*3\s*\)\s*:\s*\n\s*print\s*\(\s*\w+\s*,\s*\w+\s*\)/.test(code)
+  }
+];
+
+// Задания уровня 3
+const tasks3 = [
+  {
+    title: "Задание 1",
+    desc: "Дан список <b>numbers = [10, 20, 30, 40]</b>. Выведите каждый элемент с его индексом в формате: <b>0: 10</b>, <b>1: 20</b> и т.д. (используйте <code>enumerate()</code>).",
+    expected: "0: 10\n1: 20\n2: 30\n3: 40",
+    hint: "numbers = [10, 20, 30, 40]\nfor i, num in enumerate(numbers):\n    print(f\"{i}: {num}\")",
+    check: code => /numbers\s*=\s*\[\s*10\s*,\s*20\s*,\s*30\s*,\s*40\s*\]\s*\n\s*for\s+\w+\s*,\s*\w+\s+in\s+enumerate\s*\(\s*numbers\s*\)\s*:\s*\n\s*print\s*\(\s*f["']\{\w+\}:\s*\{\w+\}["']\s*\)/.test(code)
+  },
+  {
+    title: "Задание 2",
+    desc: "Дан список <b>fruits = [\"яблоко\", \"банан\", \"вишня\"]</b>. Выведите все элементы в обратном порядке (без использования <code>reverse()</code> или <code>[::-1]</code>).",
+    expected: "вишня\nбанан\nяблоко",
+    hint: "fruits = [\"яблоко\", \"банан\", \"вишня\"]\nfor i in range(len(fruits)-1, -1, -1):\n    print(fruits[i])",
+    check: code => /fruits\s*=\s*\[\s*["']яблоко["']\s*,\s*["']банан["']\s*,\s*["']вишня["']\s*\]\s*\n\s*for\s+\w+\s+in\s+range\s*\(\s*len\s*\(\s*fruits\s*\)\s*-\s*1\s*,\s*-\s*1\s*,\s*-\s*1\s*\)\s*:\s*\n\s*print\s*\(\s*fruits\s*\[\s*\w+\s*\]\s*\)/.test(code)
+  },
+  {
+    title: "Задание 3",
+    desc: "Дан словарь <b>person = {\"имя\": \"Анна\", \"возраст\": 25}</b>. Выведите все ключи словаря.",
+    expected: "имя\nвозраст",
+    hint: "person = {\"имя\": \"Анна\", \"возраст\": 25}\nfor key in person:\n    print(key)",
+    check: code => /person\s*=\s*\{\s*["']имя["']\s*:\s*["']Анна["']\s*,\s*["']возраст["']\s*:\s*25\s*\}\s*\n\s*for\s+\w+\s+in\s+person\s*:\s*\n\s*print\s*\(\s*\w+\s*\)/.test(code)
+  },
+  {
+    title: "Задание 4",
+    desc: "Дан словарь <b>prices = {\"яблоко\": 100, \"банан\": 80, \"вишня\": 200}</b>. Выведите все значения (цены) с помощью метода <code>values()</code>.",
+    expected: "100\n80\n200",
+    hint: "prices = {\"яблоко\": 100, \"банан\": 80, \"вишня\": 200}\nfor price in prices.values():\n    print(price)",
+    check: code => /prices\s*=\s*\{\s*["']яблоко["']\s*:\s*100\s*,\s*["']банан["']\s*:\s*80\s*,\s*["']вишня["']\s*:\s*200\s*\}\s*\n\s*for\s+\w+\s+in\s+prices\.values\s*\(\s*\)\s*:\s*\n\s*print\s*\(\s*\w+\s*\)/.test(code)
+  },
+  {
+    title: "Задание 5",
+    desc: "Дан словарь <b>scores = {\"Аня\": 95, \"Боря\": 87, \"Вика\": 92}</b>. Выведите пары ключ-значение в формате: <b>Аня — 95 баллов</b> (используйте <code>items()</code>).",
+    expected: "Аня — 95 баллов\nБоря — 87 баллов\nВика — 92 баллов",
+    hint: "scores = {\"Аня\": 95, \"Боря\": 87, \"Вика\": 92}\nfor name, score in scores.items():\n    print(f\"{name} — {score} баллов\")",
+    check: code => /scores\s*=\s*\{\s*["']Аня["']\s*:\s*95\s*,\s*["']Боря["']\s*:\s*87\s*,\s*["']Вика["']\s*:\s*92\s*\}\s*\n\s*for\s+\w+\s*,\s*\w+\s+in\s+scores\.items\s*\(\s*\)\s*:\s*\n\s*print\s*\(\s*f["']\{\w+\}\s*—\s*\{\w+\}\s*баллов["']\s*\)/.test(code)
+  },
+  {
+    title: "Задание 6",
+    desc: "Даны два списка: <b>names = [\"Аня\", \"Боря\"]</b> и <b>ages = [20, 25]</b>. Выведите пары с помощью <code>zip()</code> в формате: <b>Аня — 20 лет</b>.",
+    expected: "Аня — 20 лет\nБоря — 25 лет",
+    hint: "names = [\"Аня\", \"Боря\"]\nages = [20, 25]\nfor name, age in zip(names, ages):\n    print(f\"{name} — {age} лет\")",
+    check: code => /names\s*=\s*\[\s*["']Аня["']\s*,\s*["']Боря["']\s*\]\s*\n\s*ages\s*=\s*\[\s*20\s*,\s*25\s*\]\s*\n\s*for\s+\w+\s*,\s*\w+\s+in\s+zip\s*\(\s*names\s*,\s*ages\s*\)\s*:\s*\n\s*print\s*\(\s*f["']\{\w+\}\s*—\s*\{\w+\}\s*лет["']\s*\)/.test(code)
+  }
+];
+
+function renderTasks(tasks, containerId, scoreId, barId, totalId) {
+  const container = document.getElementById(containerId);
+  document.getElementById(totalId).textContent = tasks.length;
+  let solved = 0;
+
+  tasks.forEach((task, i) => {
+    const div = document.createElement('div');
+    div.className = 'task';
+    div.innerHTML = `
+      <h3>${task.title}</h3>
+      <p>${task.desc}</p>
+      <div class="expected">${task.expected}</div>
+      <textarea id="code_${containerId}_${i}" placeholder="Ваш код на Python..."></textarea>
+      <div class="hint" id="hint_${containerId}_${i}">💡 ${task.hint}</div>
+      <div class="result" id="res_${containerId}_${i}"></div>
+      <div class="buttons">
+        <button class="action btn-check" data-i="${i}">Проверить</button>
+        <button class="action btn-hint" data-i="${i}">Подсказка</button>
+        <button class="action btn-skip" data-i="${i}">Пропустить</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+
+  container.querySelectorAll('.btn-check').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const i = +e.target.dataset.i;
+      const code = document.getElementById(`code_${containerId}_${i}`).value.trim();
+      const res = document.getElementById(`res_${containerId}_${i}`);
+      res.classList.add('show');
+      if (tasks[i].check(code)) {
+        res.className = 'result show ok';
+        res.textContent = '✅ Верно! Отличная работа!';
+        if (!e.target.dataset.done) {
+          e.target.dataset.done = "1";
+          solved++;
+          document.getElementById(scoreId).textContent = solved;
+          document.getElementById(barId).style.width = (solved / tasks.length * 100) + '%';
+        }
+      } else {
+        res.className = 'result show err';
+        res.textContent = '❌ Пока неверно. Проверьте синтаксис и попробуйте снова.';
+      }
+    });
+  });
+
+  container.querySelectorAll('.btn-hint').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const i = +e.target.dataset.i;
+      document.getElementById(`hint_${containerId}_${i}`).classList.add('show');
+    });
+  });
+
+  container.querySelectorAll('.btn-skip').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const i = +e.target.dataset.i;
+      const ta = document.getElementById(`code_${containerId}_${i}`);
+      ta.value = tasks[i].hint;
+      ta.focus();
+    });
+  });
+}
+
+renderTasks(tasks1, 'tasks1', 'score1', 'bar1', 'total1');
+renderTasks(tasks2, 'tasks2', 'score2', 'bar2', 'total2');
+renderTasks(tasks3, 'tasks3', 'score3', 'bar3', 'total3');
+</script>
+</body>
+</html>
