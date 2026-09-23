@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐍 Тренажёры по Python</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      color: #eee;
+      padding: 30px 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    header h1 {
+      font-size: 2.5em;
+      color: #ffd866;
+      margin-bottom: 10px;
+    }
+    header p {
+      font-size: 1.1em;
+      color: #8be9fd;
+    }
+    .topic {
+      background: #1e1e2e;
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .topic h2 {
+      color: #ff79c6;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      border-bottom: 2px solid #44475a;
+      padding-bottom: 10px;
+    }
+    .card {
+      background: #2d2d44;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(139, 233, 253, 0.2);
+    }
+    .card-info {
+      flex: 1;
+      min-width: 200px;
+    }
+    .card-info h3 {
+      color: #50fa7b;
+      margin-bottom: 5px;
+      font-size: 1.2em;
+    }
+    .card-info p {
+      color: #ccc;
+      font-size: 0.95em;
+    }
+    .card-btn {
+      padding: 12px 25px;
+      background: linear-gradient(90deg, #50fa7b, #8be9fd);
+      color: #1e1e2e;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1em;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .card-btn:hover {
+      opacity: 0.85;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #6272a4;
+      font-size: 0.9em;
+    }
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.8em; }
+      .card { flex-direction: column; align-items: stretch; }
+      .card-btn { text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1> Тренажёры по Python</h1>
+      <p>Интерактивные задания прямо в браузере. Скачивать ничего не нужно!</p>
+    </header>
+
+    <!-- ТЕМА 1 -->
+    <div class="topic">
+      <h2>📝 Урок 1. Ввод и вывод</h2>
+
+      <div class="card">
+        <div class="card-info">
+          <h3> Теория и практика: print и input</h3>
+          <p>Функции print() и input(), параметры sep и end, f-строки. Три уровня сложности.</p>
+        </div>
+        <a href="print-input.html" class="card-btn" target="_blank">▶ Открыть</a>
+      </div>
+    </div>
+
+    <!-- ТЕМА 2 -->
+    <div class="topic">
+      <h2>🧬 Урок 2. Типы данных</h2>
+
+      <div class="card">
+        <div class="card-info">
+          <h3>🟢 Типы данных: int, float, str</h3>
+          <p>Типы данных, функция type(), приведение типов. Работа с настоящим Python в браузере.</p>
+        </div>
+        <a href="types.html" class="card-btn" target="_blank">▶ Открыть</a>
+      </div>
+    </div>
+
+    <!-- ТЕМА 3 -->
+    <div class="topic">
+      <h2> Урок 3. Условные операторы</h2>
+
+      <div class="card">
+        <div class="card-info">
+          <h3>🟢 if, elif, else</h3>
+          <p>Условные операторы и логические выражения. (Замените ссылку, когда тренажёр будет готов)</p>
+        </div>
+        <a href="if-else.html" class="card-btn" target="_blank">▶ Открыть</a>
+      </div>
+    </div>
+
+    <!-- ТЕМА 4 -->
+    <div class="topic">
+      <h2>🔄 Урок 4. Циклы</h2>
+
+      <div class="card">
+        <div class="card-info">
+          <h3>🟢 Цикл for</h3>
+          <p>Перебор range, строк, списков и словарей. Три уровня сложности.</p>
+        </div>
+        <a href="for-loop.html" class="card-btn" target="_blank">▶ Открыть</a>      </div>
+    </div>
+
+    <footer>
+      <p>Материалы обновляются. Приятного обучения! 🎓</p>
+    </footer>
+  </div>
+</body>
+</html>
