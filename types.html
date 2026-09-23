@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Тренажёр: Типы данных в Python</title>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    min-height: 100vh; color: #eee; padding: 20px;
+  }
+  .container {
+    max-width: 920px; margin: 0 auto;
+    background: #1e1e2e; border-radius: 16px;
+    padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  h1 { text-align: center; color: #ffd866; margin-bottom: 10px; font-size: 2em; }
+  h2 { color: #8be9fd; margin: 20px 0 10px; }
+  h3 { color: #50fa7b; margin: 15px 0 8px; }
+  .py-status {
+    text-align: center; padding: 8px; margin-bottom: 15px;
+    background: #282a36; border-radius: 8px; font-size: 0.95em;
+  }
+  .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab {
+    flex: 1; padding: 12px; background: #2d2d44; border: none;
+    color: #eee; border-radius: 8px; cursor: pointer;
+    font-size: 1em; transition: 0.3s;
+  }
+  .tab.active { background: #ff79c6; color: #fff; }
+  .tab:hover { background: #44475a; }
+  .tab.active:hover { background: #ff79c6; }
+  .section { display: none; }
+  .section.active { display: block; }
+  pre {
+    background: #282a36; padding: 15px; border-radius: 8px;
+    overflow-x: auto; border-left: 4px solid #50fa7b; margin: 10px 0;
+  }
+  code { font-family: 'Consolas', monospace; color: #f8f8f2; }
+  .kw { color: #ff79c6; } .str { color: #f1fa8c; }
+  .fn { color: #8be9fd; } .num { color: #bd93f9; }
+  .com { color: #6272a4; font-style: italic; }
+  .task {
+    background: #2d2d44; padding: 20px; border-radius: 10px;
+    margin: 15px 0; border-left: 4px solid #ffd866;
+  }
+  .task p { margin-bottom: 10px; }
+  textarea {
+    width: 100%; min-height: 100px; background: #282a36;
+    color: #f8f8f2; border: 2px solid #44475a; border-radius: 8px;
+    padding: 12px; font-family: 'Consolas', monospace;
+    font-size: 1em; resize: vertical;
+  }
+  textarea:focus { outline: none; border-color: #8be9fd; }
+  .buttons { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  button.action {
+    padding: 10px 20px; border: none; border-radius: 8px;
+    cursor: pointer; font-size: 1em; font-weight: bold; transition: 0.2s;
+  }
+  .btn-run   { background: #8be9fd; color: #282a36; }
+  .btn-check { background: #50fa7b; color: #282a36; }
+  .btn-hint  { background: #ffb86c; color: #282a36; }
+  .btn-skip  { background: #6272a4; color: #fff; }
+  button.action:hover { transform: translateY(-2px); opacity: 0.9; }
+  button.action:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .output-box {
+    margin-top: 12px; border-radius: 8px; overflow: hidden; display: none;
+  }
+  .output-box.show { display: block; }
+  .output-header {
+    padding: 6px 12px; font-size: 0.85em; font-weight: bold;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .output-body {
+    padding: 12px; font-family: 'Consolas', monospace;
+    font-size: 0.95em; white-space: pre-wrap; min-height: 24px;
+  }
+  .output-run .output-header { background: #8be9fd33; color: #8be9fd; }
+  .output-run .output-body   { background: #1a1a2e; color: #f8f8f2; border: 1px solid #8be9fd44; border-top: none; }
+  .output-err .output-header { background: #ff555533; color: #ff5555; }
+  .output-err .output-body   { background: #1a1a2e; color: #ff7777; border: 1px solid #ff555544; border-top: none; }
+  .result {
+    margin-top: 10px; padding: 12px; border-radius: 8px;
+    font-weight: bold; display: none;
+  }
+  .result.show { display: block; }
+  .result.ok  { background: #50fa7b22; color: #50fa7b; border: 1px solid #50fa7b; }
+  .result.err { background: #ff555522; color: #ff5555; border: 1px solid #ff5555; }
+  .hint {
+    margin-top: 10px; padding: 12px; background: #ffb86c22;
+    border-left: 4px solid #ffb86c; border-radius: 6px; display: none;
+  }
+  .hint.show { display: block; }
+  .progress {
+    background: #44475a; height: 10px; border-radius: 5px;
+    overflow: hidden; margin: 10px 0 20px;
+  }
+  .progress-bar {
+    height: 100%; background: linear-gradient(90deg, #50fa7b, #8be9fd);
+    width: 0%; transition: width 0.4s;
+  }
+  .score { text-align: center; font-size: 1.2em; color: #ffd866; margin-bottom: 10px; }
+  .expected {
+    background: #282a36; padding: 10px; border-radius: 6px;
+    margin: 8px 0; border-left: 3px solid #bd93f9;
+  }
+  .expected::before {
+    content: "Ожидаемый вывод:"; display: block;
+    color: #bd93f9; font-size: 0.85em; margin-bottom: 4px;
+  }
+  .test-data {
+    background: #282a36; padding: 8px 10px; border-radius: 6px;
+    margin: 6px 0; border-left: 3px solid #ffb86c; font-size: 0.9em;
+  }
+  .test-data::before {
+    content: "📥 Тестовые данные (input): "; color: #ffb86c;
+  }
+  .note {
+    background: #44475a33; border-left: 4px solid #8be9fd;
+    padding: 10px 15px; margin: 10px 0; border-radius: 6px;
+  }
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid #8be9fd44; border-top-color: #8be9fd;
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🧬 Тренажёр: Типы данных в Python</h1>
+  <div class="py-status" id="py-status">
+    <span class="spinner"></span> Загрузка Python-интерпретатора (Pyodide)…
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="theory">📖 Теория</button>
+    <button class="tab" data-tab="level1">🟢 Уровень 1</button>
+    <button class="tab" data-tab="level2">🟡 Уровень 2</button>
+    <button class="tab" data-tab="level3">🔴 Уровень 3</button>
+  </div>
+
+  <!-- ==================== ТЕОРИЯ ==================== -->
+  <div class="section active" id="theory">
+    <h2>Основные типы данных</h2>
+    <p>В Python каждое значение имеет <b>тип</b>. Узнать тип можно с помощью функции <code class="fn">type()</code>.</p>
+    <pre><code><span class="fn">print</span>(<span class="fn">type</span>(<span class="num">42</span>))        <span class="com"># &lt;class 'int'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="num">3.14</span>))      <span class="com"># &lt;class 'float'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="str">"Привет"</span>))  <span class="com"># &lt;class 'str'&gt;</span></code></pre>
+
+    <h3>🔢 int — целые числа</h3>
+    <pre><code>a = <span class="num">10</span>
+b = -<span class="num">5</span>
+c = <span class="num">0</span></code></pre>
+
+    <h3>💧 float — дробные числа</h3>
+    <pre><code>x = <span class="num">3.14</span>
+y = -<span class="num">0.5</span>
+z = <span class="num">2.0</span>   <span class="com"># даже с нулевой дробной частью — это float</span></code></pre>
+
+    <div class="note">⚠️ <b>Важно:</b> результат деления <code>/</code> всегда <b>float</b>!<br>
+    <code>10 / 2</code> → <code>5.0</code> (float). Целочисленное деление <code>//</code> → <b>int</b>.</div>
+
+    <h3>📝 str — строки</h3>
+    <pre><code>s1 = <span class="str">"Hello"</span>
+s2 = <span class="str">'World'</span>
+s3 = <span class="str">"123"</span>   <span class="com"># это строка, а не число!</span></code></pre>
+
+    <h2>Приведение типов</h2>
+    <pre><code><span class="fn">int</span>(<span class="str">"42"</span>)       <span class="com"># 42</span>
+<span class="fn">int</span>(<span class="num">3.9</span>)        <span class="com"># 3  (отбрасывает дробь!)</span>
+<span class="fn">float</span>(<span class="str">"3.14"</span>)   <span class="com"># 3.14</span>
+<span class="fn">float</span>(<span class="num">5</span>)        <span class="com"># 5.0</span>
+<span class="fn">str</span>(<span class="num">100</span>)        <span class="com"># "100"</span>
+<span class="fn">str</span>(<span class="num">3.14</span>)       <span class="com"># "3.14"</span></code></pre>
+
+    <div class="note">⚠️ <code>int("3.14")</code> — ❌ ValueError!<br>
+    Правильно: <code>int(float("3.14"))</code> → <code>3</code></div>
+
+    <h2>Операции и типы</h2>
+    <pre><code><span class="num">5</span> + <span class="num">3</span>       <span class="com"># 8    (int + int → int)</span>
+<span class="num">5</span> + <span class="num">3.0</span>     <span class="com"># 8.0  (int + float → float)</span>
+<span class="str">"5"</span> + <span class="str">"3"</span>    <span class="com"># "53" (str + str → конкатенация)</span>
+<span class="str">"Ha"</span> * <span class="num">3</span>     <span class="com"># "HaHaHa" (str * int)</span></code></pre>
+  </div>
+
+  <!-- ==================== УРОВНИ ==================== -->
+  <div class="section" id="level1">
+    <h2>🟢 Уровень 1 — Простые задания</h2>
+    <div class="score">Решено: <span id="score1">0</span> / <span id="total1">0</span></div>
+    <div class="progress"><div class="progress-bar" id="bar1"></div></div>
+    <div id="tasks1"></div>
+  </div>
+  <div class="section" id="level2">
+    <h2>🟡 Уровень 2 — Средняя сложность</h2>
+    <div class="score">Решено: <span id="score2">0</span> / <span id="total2">0</span></div>
+    <div class="progress"><div class="progress-bar" id="bar2"></div></div>
+    <div id="tasks2"></div>
+  </div>
+  <div class="section" id="level3">
+    <h2>🔴 Уровень 3 — Сложные задания</h2>
+    <div class="score">Решено: <span id="score3">0</span> / <span id="total3">0</span></div>
+    <div class="progress"><div class="progress-bar" id="bar3"></div></div>
+    <div id="tasks3"></div>
+  </div>
+</div>
+
+<script>
+/* ========== ВКЛАДКИ ========== */
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+/* ========== PYODIDE ========== */
+let pyodide = null;
+let pyReady = false;
+
+async function initPy() {
+  const st = document.getElementById('py-status');
+  try {
+    pyodide = await loadPyodide();
+    pyReady = true;
+    st.innerHTML = '✅ Python-интерпретатор готов — код будет выполняться прямо в браузере!';
+    st.style.color = '#50fa7b';
+  } catch(e) {
+    st.innerHTML = '⚠️ Не удалось загрузить Python. Проверка только по структуре кода.';
+    st.style.color = '#ffb86c';
+  }
+}
+initPy();
+
+function norm(s) {
+  return s.replace(/\r\n/g,'\n').trim().split('\n').map(l=>l.trimEnd()).join('\n');
+}
+
+async function runPython(code, inputs) {
+  if (!pyReady) return { out: '', err: 'Интерпретатор ещё не загружен.', ok: false };
+  try {
+    pyodide.runPython(`
+import sys, io
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+`);
+    let idx = 0;
+    pyodide.setStdin({ stdin: () => { let v = inputs[idx] ?? ''; idx++; return v; } });
+    await pyodide.runPythonAsync(code);
+    const out = pyodide.runPython('sys.stdout.getvalue()');
+    const err = pyodide.runPython('sys.stderr.getvalue()');
+    return { out: out.trimEnd(), err: err.trim() || null, ok: true };
+  } catch(e) {
+    let msg = (e.message || String(e));
+    const lines = msg.split('\n');
+    const clean = lines.filter(l => !l.includes('pyodide') && !l.includes('wasm') && !l.includes('hiwire')).join('\n').trim();
+    return { out: '', err: clean || msg, ok: false };
+  }
+}
+
+/* ========== ЗАДАНИЯ ========== */
+const tasks1 = [
+  { title:"Задание 1", desc:"Выведите тип числа <b>42</b> с помощью <code>type()</code>.",
+    expected:"&lt;class 'int'&gt;", out:"<class 'int'>", inputs:[],
+    hint:"print(type(42))",
+    check: c => /print\s*\(\s*type\s*\(\s*42\s*\)\s*\)/.test(c) },
+  { title:"Задание 2", desc:"Выведите тип числа <b>3.14</b>.",
+    expected:"&lt;class 'float'&gt;", out:"<class 'float'>", inputs:[],
+    hint:"print(type(3.14))",
+    check: c => /print\s*\(\s*type\s*\(\s*3\.14\s*\)\s*\)/.test(c) },
+  { title:"Задание 3", desc:"Выведите тип строки <b>\"Hello\"</b>.",
+    expected:"&lt;class 'str'&gt;", out:"<class 'str'>", inputs:[],
+    hint:"print(type(\"Hello\"))",
+    check: c => /print\s*\(\s*type\s*\(\s*["']Hello["']\s*\)\s*\)/.test(c) },
+  { title:"Задание 4", desc:"Приведите строку <b>\"123\"</b> к типу int и выведите результат.",
+    expected:"123", out:"123", inputs:[],
+    hint:"print(int(\"123\"))",
+    check: c => /print\s*\(\s*int\s*\(\s*["']123["']\s*\)\s*\)/.test(c) },
+  { title:"Задание 5", desc:"Приведите число <b>3.9</b> к типу int и выведите результат.",
+    expected:"3", out:"3", inputs:[],
+    hint:"print(int(3.9))",
+    check: c => /print\s*\(\s*int\s*\(\s*3\.9\s*\)\s*\)/.test(c) }
+];
+
+const tasks2 = [
+  { title:"Задание 1", desc:"Выведите результат <b>10 / 2</b> и его тип (два print).",
+    expected:"5.0\n&lt;class 'float'&gt;", out:"5.0\n<class 'float'>", inputs:[],
+    hint:"print(10 / 2)\nprint(type(10 / 2))",
+    check: c => /print\s*\(\s*10\s*\/\s*2\s*\)/.test(c) && /print\s*\(\s*type\s*\(\s*10\s*\/\s*2\s*\)\s*\)/.test(c) },
+  { title:"Задание 2", desc:"Выведите результат <b>\"5\" + \"3\"</b> (конкатенация).",
+    expected:"53", out:"53", inputs:[],
+    hint:"print(\"5\" + \"3\")",
+    check: c => /print\s*\(\s*["']5["']\s*\+\s*["']3["']\s*\)/.test(c) },
+  { title:"Задание 3", desc:"Приведите <b>\"3.14\"</b> к int в два этапа и выведите.",
+    expected:"3", out:"3", inputs:[],
+    hint:"print(int(float(\"3.14\")))",
+    check: c => /print\s*\(\s*int\s*\(\s*float\s*\(\s*["']3\.14["']\s*\)\s*\)\s*\)/.test(c) },
+  { title:"Задание 4", desc:"Выведите результат <b>\"Ha\" * 3</b>.",
+    expected:"HaHaHa", out:"HaHaHa", inputs:[],
+    hint:"print(\"Ha\" * 3)",
+    check: c => /print\s*\(\s*["']Ha["']\s*\*\s*3\s*\)/.test(c) },
+  { title:"Задание 5", desc:"Приведите число <b>100</b> к строке и выведите результат вместе с его типом (два print).",
+    expected:"100\n&lt;class 'str'&gt;", out:"100\n<class 'str'>", inputs:[],
+    hint:"s = str(100)\nprint(s)\nprint(type(s))",
+    check: c => /str\s*\(\s*100\s*\)/.test(c) && /print/.test(c) },
+  { title:"Задание 6", desc:"Приведите строку <b>\"2.5\"</b> к float и выведите результат вместе с его типом (два print).",
+    expected:"2.5\n&lt;class 'float'&gt;", out:"2.5\n<class 'float'>", inputs:[],
+    hint:"x = float(\"2.5\")\nprint(x)\nprint(type(x))",
+    check: c => /float\s*\(\s*["']2\.5["']\s*\)/.test(c) && /print/.test(c) }
+];
+
+const tasks3 = [
+  { title:"Задание 1",
+    desc:"Считайте два числа как строки (<b>a</b>, <b>b</b>). Выведите их конкатенацию, затем сумму (после int).",
+    expected:"53\n8", out:"53\n8", inputs:["5","3"],
+    hint:"a = input()\nb = input()\nprint(a + b)\nprint(int(a) + int(b))",
+    check: c => /a\s*=\s*input/.test(c) && /b\s*=\s*input/.test(c) &&
+                /print\s*\(\s*a\s*\+\s*b\s*\)/.test(c) && /print\s*\(\s*int\s*\(\s*a\s*\)\s*\+\s*int\s*\(\s*b\s*\)\s*\)/.test(c) },
+  { title:"Задание 2",
+    desc:"Считайте число <b>x</b> (float). Выведите целую и дробную часть: <b>Целая: {…}, Дробная: {…}</b>.",
+    expected:"Целая: 5, Дробная: 0.5", out:"Целая: 5, Дробная: 0.5", inputs:["5.5"],
+    hint:"x = float(input())\nprint(f\"Целая: {int(x)}, Дробная: {x - int(x)}\")",
+    check: c => /x\s*=\s*float\s*\(\s*input/.test(c) &&
+                /print\s*\(\s*f["']Целая:\s*\{int\s*\(\s*x\s*\)\},\s*Дробная:\s*\{x\s*-\s*int\s*\(\s*x\s*\)\}["']/.test(c) },
+  { title:"Задание 3",
+    desc:"Считайте <b>n</b> (int). Выведите: <b>Тип: {type}, Значение: {n}, n/2 = {рез} ({тип рез})</b>.",
+    expected:"Тип: <class 'int'>, Значение: 10, n/2 = 5.0 (<class 'float'>)",
+    out:"Тип: <class 'int'>, Значение: 10, n/2 = 5.0 (<class 'float'>)", inputs:["10"],
+    hint:"n = int(input())\nr = n / 2\nprint(f\"Тип: {type(n)}, Значение: {n}, n/2 = {r} ({type(r)})\")",
+    check: c => /n\s*=\s*int\s*\(\s*input/.test(c) && /r\s*=\s*n\s*\/\s*2/.test(c) &&
+                /print\s*\(\s*f["']Тип:\s*\{type\s*\(\s*n\s*\)\},\s*Значение:\s*\{n\},\s*n\/2\s*=\s*\{r\}\s*\(\{type\s*\(\s*r\s*\)\}\)["']/.test(c) },
+  { title:"Задание 4",
+    desc:"Считайте <b>a</b> (int), <b>b</b> (float), <b>c</b> (str→int). Выведите сумму и типы всех трёх переменных.",
+    expected:"Сумма: 15.5, Типы: <class 'int'>, <class 'float'>, <class 'int'>",
+    out:"Сумма: 15.5, Типы: <class 'int'>, <class 'float'>, <class 'int'>", inputs:["5","3.5","7"],
+    hint:"a = int(input())\nb = float(input())\nc = int(input())\nprint(f\"Сумма: {a+b+c}, Типы: {type(a)}, {type(b)}, {type(c)}\")",
+    check: c => /a\s*=\s*int\s*\(\s*input/.test(c) && /b\s*=\s*float\s*\(\s*input/.test(c) &&
+                /c\s*=\s*int\s*\(\s*input/.test(c) &&
+                /print\s*\(\s*f["']Сумма:\s*\{a\s*\+\s*b\s*\+\s*c\},\s*Типы:\s*\{type\s*\(\s*a\s*\)\},\s*\{type\s*\(\s*b\s*\)\},\s*\{type\s*\(\s*c\s*\)\}["']/.test(c) },
+  { title:"Задание 5",
+    desc:"Считайте <b>x</b> (float). Выведите целую часть (int), округлённое (round) и их типы.",
+    expected:"Исходное: 3.7 (<class 'float'>), Целая: 3 (<class 'int'>), Округлённое: 4 (<class 'int'>)",
+    out:"Исходное: 3.7 (<class 'float'>), Целая: 3 (<class 'int'>), Округлённое: 4 (<class 'int'>)", inputs:["3.7"],
+    hint:"x = float(input())\ni = int(x)\nr = round(x)\nprint(f\"Исходное: {x} ({type(x)}), Целая: {i} ({type(i)}), Округлённое: {r} ({type(r)})\")",
+    check: c => /x\s*=\s*float\s*\(\s*input/.test(c) && /i\s*=\s*int\s*\(\s*x\s*\)/.test(c) &&
+                /r\s*=\s*round\s*\(\s*x\s*\)/.test(c) &&
+                /print\s*\(\s*f["']Исходное:\s*\{x\}\s*\(\{type\s*\(\s*x\s*\)\}\),\s*Целая:\s*\{i\}\s*\(\{type\s*\(\s*i\s*\)\}\),\s*Округлённое:\s*\{r\}\s*\(\{type\s*\(\s*r\s*\)\}\)["']/.test(c) },
+  { title:"Задание 6",
+    desc:"Считайте число <b>n</b> (int). Выведите результат целочисленного деления <b>n // 3</b> и обычного деления <b>n / 3</b> с их типами.",
+    expected:"n // 3 = 3 (<class 'int'>), n / 3 = 3.3333333333333335 (<class 'float'>)",
+    out:"n // 3 = 3 (<class 'int'>), n / 3 = 3.3333333333333335 (<class 'float'>)", inputs:["10"],
+    hint:"n = int(input())\na = n // 3\nb = n / 3\nprint(f\"n // 3 = {a} ({type(a)}), n / 3 = {b} ({type(b)})\")",
+    check: c => /n\s*=\s*int\s*\(\s*input/.test(c) && /\/\/\s*3/.test(c) && /\/\s*3/.test(c) &&
+                /print\s*\(\s*f["']n\s*\/\/\s*3\s*=\s*\{[^}]+\}\s*\(\{type[^}]+\}\),\s*n\s*\/\s*3\s*=\s*\{[^}]+\}\s*\(\{type[^}]+\}\)["']/.test(c) }
+];
+
+/* ========== РЕНДЕР ========== */
+function renderTasks(tasks, cId, sId, bId, tId) {
+  const box = document.getElementById(cId);
+  document.getElementById(tId).textContent = tasks.length;
+  let solved = 0;
+
+  tasks.forEach((t, i) => {
+    const d = document.createElement('div');
+    d.className = 'task';
+    const inputData = t.inputs.length
+      ? `<div class="test-data">${t.inputs.map(v=>`<code>${v}</code>`).join(', ')}</div>` : '';
+    d.innerHTML = `
+      <h3>${t.title}</h3>
+      <p>${t.desc}</p>
+      ${inputData}
+      <div class="expected">${t.expected}</div>
+      <textarea id="c_${cId}_${i}" placeholder="Ваш код на Python..."></textarea>
+      <div class="output-box output-run" id="out_${cId}_${i}">
+        <div class="output-header">▶ Вывод программы</div>
+        <div class="output-body" id="outb_${cId}_${i}"></div>
+      </div>
+      <div class="output-box output-err" id="err_${cId}_${i}">
+        <div class="output-header">❌ Ошибка</div>
+        <div class="output-body" id="errb_${cId}_${i}"></div>
+      </div>
+      <div class="hint" id="h_${cId}_${i}">💡 ${t.hint.replace(/\n/g,'<br>')}</div>
+      <div class="result" id="r_${cId}_${i}"></div>
+      <div class="buttons">
+        <button class="action btn-run"   data-i="${i}">▶ Запустить</button>
+        <button class="action btn-check" data-i="${i}">✅ Проверить</button>
+        <button class="action btn-hint"  data-i="${i}">💡 Подсказка</button>
+        <button class="action btn-skip"  data-i="${i}">⏭ Пропустить</button>
+      </div>`;
+    box.appendChild(d);
+  });
+
+  /* --- Запустить --- */
+  box.querySelectorAll('.btn-run').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      const i = +e.target.dataset.i;
+      const code = document.getElementById(`c_${cId}_${i}`).value.trim();
+      if (!code) return;
+      const outBox = document.getElementById(`out_${cId}_${i}`);
+      const errBox = document.getElementById(`err_${cId}_${i}`);
+      const outB   = document.getElementById(`outb_${cId}_${i}`);
+      const errB   = document.getElementById(`errb_${cId}_${i}`);
+      outBox.classList.remove('show'); errBox.classList.remove('show');
+
+      if (!pyReady) { outBox.classList.add('show'); outB.textContent = '⏳ Интерпретатор ещё загружается…'; return; }
+
+      e.target.disabled = true; e.target.textContent = '⏳…';
+      const res = await runPython(code, tasks[i].inputs);
+      e.target.disabled = false; e.target.textContent = '▶ Запустить';
+
+      if (res.ok && !res.err) {
+        outBox.classList.add('show');
+        outB.textContent = res.out || '(пустой вывод)';
+      } else if (res.ok && res.err) {
+        outBox.classList.add('show'); outB.textContent = res.out || '(пустой вывод)';
+        errBox.classList.add('show'); errB.textContent = res.err;
+      } else {
+        errBox.classList.add('show'); errB.textContent = res.err;
+      }
+    });
+  });
+
+  /* --- Проверить --- */
+  box.querySelectorAll('.btn-check').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      const i = +e.target.dataset.i;
+      const code = document.getElementById(`c_${cId}_${i}`).value.trim();
+      const res  = document.getElementById(`r_${cId}_${i}`);
+      const outBox = document.getElementById(`out_${cId}_${i}`);
+      const errBox = document.getElementById(`err_${cId}_${i}`);
+      const outB   = document.getElementById(`outb_${cId}_${i}`);
+      const errB   = document.getElementById(`errb_${cId}_${i}`);
+      outBox.classList.remove('show'); errBox.classList.remove('show');
+      res.classList.add('show');
+
+      if (!code) { res.className='result show err'; res.textContent='❌ Напишите код!'; return; }
+
+      /* запуск */
+      let runOk = false, outMatch = false;
+      if (pyReady) {
+        e.target.disabled = true; e.target.textContent = '⏳…';
+        const r = await runPython(code, tasks[i].inputs);
+        e.target.disabled = false; e.target.textContent = '✅ Проверить';
+        if (r.ok) {
+          outBox.classList.add('show');
+          outB.textContent = r.out || '(пустой вывод)';
+          runOk = true;
+          outMatch = norm(r.out) === norm(tasks[i].out);
+        }
+        if (r.err) { errBox.classList.add('show'); errB.textContent = r.err; }
+      }
+
+      const structOk = tasks[i].check(code);
+
+      if (structOk && (outMatch || !pyReady)) {
+        res.className = 'result show ok';
+        res.textContent = '✅ Верно! Отличная работа!';
+        if (!e.target.dataset.done) {
+          e.target.dataset.done = '1'; solved++;
+          document.getElementById(sId).textContent = solved;
+          document.getElementById(bId).style.width = (solved/tasks.length*100)+'%';
+        }
+      } else if (runOk && outMatch && !structOk) {
+        res.className = 'result show ok';
+        res.textContent = '✅ Вывод верный! Но структура кода отличается от ожидаемой — проверьте, не упростили ли вы задачу.';
+        if (!e.target.dataset.done) {
+          e.target.dataset.done = '1'; solved++;
+          document.getElementById(sId).textContent = solved;
+          document.getElementById(bId).style.width = (solved/tasks.length*100)+'%';
+        }
+      } else if (runOk && !outMatch) {
+        res.className = 'result show err';
+        res.textContent = '❌ Код работает, но вывод не совпадает с ожидаемым. Сравните с образцом выше.';
+      } else if (!pyReady && structOk) {
+        res.className = 'result show ok';
+        res.textContent = '✅ Структура кода верна! (Python ещё загружается — вывод не проверен)';
+      } else {
+        res.className = 'result show err';
+        res.textContent = '❌ Пока неверно. Проверьте синтаксис и попробуйте снова.';
+      }
+    });
+  });
+
+  /* --- Подсказка / Пропустить --- */
+  box.querySelectorAll('.btn-hint').forEach(btn => {
+    btn.addEventListener('click', e => {
+      document.getElementById(`h_${cId}_${+e.target.dataset.i}`).classList.add('show');
+    });
+  });
+  box.querySelectorAll('.btn-skip').forEach(btn => {
+    btn.addEventListener('click', e => {
+      document.getElementById(`c_${cId}_${+e.target.dataset.i}`).value = tasks[+e.target.dataset.i].hint;
+    });
+  });
+}
+
+renderTasks(tasks1,'tasks1','score1','bar1','total1');
+renderTasks(tasks2,'tasks2','score2','bar2','total2');
+renderTasks(tasks3,'tasks3','score3','bar3','total3');
+</script>
+</body>
+</html>
